@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -167,30 +167,32 @@ export const AddEmployeeWizard = () => {
         <Progress value={progress} className="w-full" />
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <CurrentStepComponent form={form} />
-          
-          <div className="flex justify-between pt-6 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 1}
-            >
-              Previous
-            </Button>
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <CurrentStepComponent form={form} />
             
-            {currentStep === steps.length ? (
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Submit Employee'}
+            <div className="flex justify-between pt-6 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={prevStep}
+                disabled={currentStep === 1}
+              >
+                Previous
               </Button>
-            ) : (
-              <Button type="button" onClick={nextStep}>
-                Next
-              </Button>
-            )}
-          </div>
-        </form>
+              
+              {currentStep === steps.length ? (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit Employee'}
+                </Button>
+              ) : (
+                <Button type="button" onClick={nextStep}>
+                  Next
+                </Button>
+              )}
+            </div>
+          </form>
+        </FormProvider>
       </CardContent>
     </Card>
   );
