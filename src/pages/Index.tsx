@@ -53,6 +53,12 @@ const Index = () => {
                   className="pl-10 w-80"
                 />
               </div>
+              <Button asChild>
+                <a href="/hrms">
+                  <Building className="h-4 w-4 mr-2" />
+                  HRMS Dashboard
+                </a>
+              </Button>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Add User
