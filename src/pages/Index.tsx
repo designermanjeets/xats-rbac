@@ -4,12 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Building, Users, Shield, Key, Activity, Search, Plus } from 'lucide-react';
+import { Building, Users, Shield, Key, Activity, Search, Plus, Package } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import TenantOverview from '@/components/rbac/TenantOverview';
 import UserManagement from '@/components/rbac/UserManagement';
 import RoleManagement from '@/components/rbac/RoleManagement';
 import PermissionManagement from '@/components/rbac/PermissionManagement';
+import PermissionSets from '@/components/rbac/PermissionSets';
 import AuditLogs from '@/components/rbac/AuditLogs';
 
 const Index = () => {
@@ -21,6 +22,7 @@ const Index = () => {
     totalUsers: 156,
     totalRoles: 17,
     totalPermissions: 56,
+    totalPermissionSets: 18,
     activeUsers: 143,
     pendingApprovals: 8
   };
@@ -62,7 +64,7 @@ const Index = () => {
 
       {/* Stats Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -103,7 +105,19 @@ const Index = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <Key className="h-8 w-8 text-orange-500" />
+                <Package className="h-8 w-8 text-orange-500" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Permission Sets</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalPermissionSets}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Key className="h-8 w-8 text-cyan-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Permissions</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.totalPermissions}</p>
@@ -138,7 +152,7 @@ const Index = () => {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <Building className="h-4 w-4" />
               <span>Overview</span>
@@ -150,6 +164,10 @@ const Index = () => {
             <TabsTrigger value="roles" className="flex items-center space-x-2">
               <Shield className="h-4 w-4" />
               <span>Roles</span>
+            </TabsTrigger>
+            <TabsTrigger value="permission-sets" className="flex items-center space-x-2">
+              <Package className="h-4 w-4" />
+              <span>Permission Sets</span>
             </TabsTrigger>
             <TabsTrigger value="permissions" className="flex items-center space-x-2">
               <Key className="h-4 w-4" />
@@ -171,6 +189,10 @@ const Index = () => {
 
           <TabsContent value="roles" className="space-y-6">
             <RoleManagement searchTerm={searchTerm} />
+          </TabsContent>
+
+          <TabsContent value="permission-sets" className="space-y-6">
+            <PermissionSets searchTerm={searchTerm} />
           </TabsContent>
 
           <TabsContent value="permissions" className="space-y-6">
