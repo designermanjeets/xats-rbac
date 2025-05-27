@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { PersonalInfoForm } from './forms/PersonalInfoForm';
 import { EmploymentDetailsForm } from './forms/EmploymentDetailsForm';
 import { IdentificationForm } from './forms/IdentificationForm';
@@ -13,6 +12,7 @@ import { BankingPayrollForm } from './forms/BankingPayrollForm';
 import { SkillsExperienceForm } from './forms/SkillsExperienceForm';
 import { DocumentsForm } from './forms/DocumentsForm';
 import { ReviewSubmitForm } from './forms/ReviewSubmitForm';
+import { WizardSteps } from './WizardSteps';
 import { toast } from 'sonner';
 
 const employeeSchema = z.object({
@@ -83,26 +83,64 @@ const employeeSchema = z.object({
 type EmployeeFormData = z.infer<typeof employeeSchema>;
 
 const steps = [
-  { id: 1, title: 'Personal Information', component: PersonalInfoForm },
-  { id: 2, title: 'Employment Details', component: EmploymentDetailsForm },
-  { id: 3, title: 'Identification & Compliance', component: IdentificationForm },
-  { id: 4, title: 'Banking & Payroll', component: BankingPayrollForm },
-  { id: 5, title: 'Skills & Experience', component: SkillsExperienceForm },
-  { id: 6, title: 'Documents & Attachments', component: DocumentsForm },
-  { id: 7, title: 'Review & Submit', component: ReviewSubmitForm },
+  { 
+    id: 1, 
+    title: 'Personal Information', 
+    description: 'Basic personal details',
+    component: PersonalInfoForm 
+  },
+  { 
+    id: 2, 
+    title: 'Employment Details', 
+    description: 'Job and employment information',
+    component: EmploymentDetailsForm 
+  },
+  { 
+    id: 3, 
+    title: 'Identification & Compliance', 
+    description: 'ID and compliance documents',
+    component: IdentificationForm 
+  },
+  { 
+    id: 4, 
+    title: 'Banking & Payroll', 
+    description: 'Payment and salary details',
+    component: BankingPayrollForm 
+  },
+  { 
+    id: 5, 
+    title: 'Skills & Experience', 
+    description: 'Professional background',
+    component: SkillsExperienceForm 
+  },
+  { 
+    id: 6, 
+    title: 'Documents & Attachments', 
+    description: 'Required documents upload',
+    component: DocumentsForm 
+  },
+  { 
+    id: 7, 
+    title: 'Review & Submit', 
+    description: 'Final review and submission',
+    component: ReviewSubmitForm 
+  },
 ];
 
 export const AddEmployeeWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
       employmentType: 'Full time',
-      workLocation: 'Main Office', // Default value
+      workLocation: 'Main Office',
       documents: {},
     },
+    mode: 'onChange',
   });
 
   const nextStep = async () => {
@@ -110,12 +148,46 @@ export const AddEmployeeWizard = () => {
     const isValid = await form.trigger(currentStepFields);
     
     if (isValid) {
+      if (!completedSteps.includes(currentStep)) {
+        setCompletedSteps(prev => [...prev, currentStep]);
+      }
       setCurrentStep(prev => Math.min(prev + 1, steps.length));
     }
   };
 
   const prevStep = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const goToStep = (stepNumber: number) => {
+    if (stepNumber <= currentStep || completedSteps.includes(stepNumber - 1)) {
+      setCurrentStep(stepNumber);
+    }
+  };
+
+  const saveCurrentStep = async () => {
+    setIsSaving(true);
+    try {
+      const currentStepFields = getStepFields(currentStep);
+      const isValid = await form.trigger(currentStepFields);
+      
+      if (isValid) {
+        // Simulate API call to save draft
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (!completedSteps.includes(currentStep)) {
+          setCompletedSteps(prev => [...prev, currentStep]);
+        }
+        
+        toast.success(`Step ${currentStep} saved successfully!`);
+      } else {
+        toast.error('Please fix validation errors before saving.');
+      }
+    } catch (error) {
+      toast.error('Failed to save step. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const onSubmit = async (data: EmployeeFormData) => {
@@ -155,45 +227,68 @@ export const AddEmployeeWizard = () => {
   };
 
   const CurrentStepComponent = steps[currentStep - 1].component;
-  const progress = (currentStep / steps.length) * 100;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}</span>
-          <span className="text-sm font-normal text-muted-foreground">{Math.round(progress)}% Complete</span>
-        </CardTitle>
-        <Progress value={progress} className="w-full" />
-      </CardHeader>
-      <CardContent>
-        <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <CurrentStepComponent form={form} />
-            
-            <div className="flex justify-between pt-6 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={prevStep}
-                disabled={currentStep === 1}
-              >
-                Previous
-              </Button>
+    <div className="w-full space-y-6">
+      <WizardSteps 
+        steps={steps}
+        currentStep={currentStep}
+        completedSteps={completedSteps}
+        onStepClick={goToStep}
+      />
+      
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>{steps[currentStep - 1].title}</span>
+            <span className="text-sm font-normal text-muted-foreground">
+              Step {currentStep} of {steps.length}
+            </span>
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {steps[currentStep - 1].description}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <FormProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <CurrentStepComponent form={form} />
               
-              {currentStep === steps.length ? (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Submitting...' : 'Submit Employee'}
-                </Button>
-              ) : (
-                <Button type="button" onClick={nextStep}>
-                  Next
-                </Button>
-              )}
-            </div>
-          </form>
-        </FormProvider>
-      </CardContent>
-    </Card>
+              <div className="flex justify-between pt-6 border-t">
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                  >
+                    Previous
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={saveCurrentStep}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? 'Saving...' : 'Save Draft'}
+                  </Button>
+                </div>
+                
+                {currentStep === steps.length ? (
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Submitting...' : 'Submit Employee'}
+                  </Button>
+                ) : (
+                  <Button type="button" onClick={nextStep}>
+                    Save & Continue
+                  </Button>
+                )}
+              </div>
+            </form>
+          </FormProvider>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

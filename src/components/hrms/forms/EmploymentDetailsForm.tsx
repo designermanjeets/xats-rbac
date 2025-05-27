@@ -237,7 +237,7 @@ export const EmploymentDetailsForm = ({ form }: EmploymentDetailsFormProps) => {
             name="contractStartDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Contract Start Date</FormLabel>
+                <FormLabel>Contract Start Date *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -277,7 +277,7 @@ export const EmploymentDetailsForm = ({ form }: EmploymentDetailsFormProps) => {
             name="contractEndDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Contract End Date</FormLabel>
+                <FormLabel>Contract End Date *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -317,11 +317,11 @@ export const EmploymentDetailsForm = ({ form }: EmploymentDetailsFormProps) => {
             name="sourceOfHire"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Source of Hire</FormLabel>
+                <FormLabel>Source of Hire *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select vendor" />
+                      <SelectValue placeholder="Select vendor/source" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -329,6 +329,8 @@ export const EmploymentDetailsForm = ({ form }: EmploymentDetailsFormProps) => {
                     <SelectItem value="Vendor B">Vendor B - GlobalTech Partners</SelectItem>
                     <SelectItem value="Vendor C">Vendor C - ContractPro Services</SelectItem>
                     <SelectItem value="Direct">Direct Hire</SelectItem>
+                    <SelectItem value="Referral">Employee Referral</SelectItem>
+                    <SelectItem value="Agency">Recruitment Agency</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
